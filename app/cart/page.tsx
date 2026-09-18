@@ -28,7 +28,7 @@ export default function CartPage() {
         <div className="space-y-4">
           {items.map(item => (
             <div key={item.product.id} className="flex gap-4 rounded-[20px] border border-[#E7E5E4] bg-white p-4">
-              <img src={item.product.images[0]} alt={item.product.name} className="h-24 w-24 rounded-xl object-cover bg-[#F8F7F4]" />
+              <img src={item.product.images[0]} alt={item.product.name} referrerPolicy="no-referrer" className="h-24 w-24 rounded-xl object-cover bg-[#F8F7F4]" />
               <div className="flex-1 min-w-0">
                 <h3 className="font-semibold text-sm leading-tight line-clamp-2">{item.product.name}</h3>
                 <p className="text-xs text-[#78716C] mt-1">{item.product.brand} • {item.product.condition}</p>

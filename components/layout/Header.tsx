@@ -52,11 +52,11 @@ export function Header() {
       <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between gap-4">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 shrink-0">
-            <div className="h-9 w-9 rounded-xl bg-[#0F0F12] flex items-center justify-center">
+          <Link href="/" id="header-tunemart-logo" className="flex items-center gap-2 shrink-0">
+            <div className="h-9 w-9 rounded-xl bg-[#0F0F12] flex items-center justify-center shadow-sm">
               <span className="text-white font-bold text-lg tracking-tight">T</span>
             </div>
-            <span className="text-xl font-bold tracking-tight hidden sm:block">
+            <span className="text-lg sm:text-xl font-bold tracking-tight inline-flex items-center">
               TUNE<span className="text-[#FF6B00]">MART</span>
             </span>
           </Link>
@@ -130,6 +130,7 @@ export function Header() {
           <Link href="/categories" className="hover:text-[#FF6B00] transition-colors">Categories</Link>
           <Link href="/products?condition=new" className="hover:text-[#FF6B00] transition-colors">New Arrivals</Link>
           <Link href="/products?condition=used" className="hover:text-[#FF6B00] transition-colors">Used Gear</Link>
+          <Link href="/products?category=Studio%20Gear" className="hover:text-[#FF6B00] transition-colors">Studio Gear</Link>
           <Link href="/products?isFeatured=true" className="hover:text-[#FF6B00] transition-colors">Featured</Link>
           {isAuthenticated && (
             <>
@@ -161,6 +162,7 @@ export function Header() {
               <Link href="/categories" onClick={() => setMobileOpen(false)} className="py-2">Categories</Link>
               <Link href="/products?condition=new" onClick={() => setMobileOpen(false)} className="py-2">New Arrivals</Link>
               <Link href="/products?condition=used" onClick={() => setMobileOpen(false)} className="py-2">Used Gear</Link>
+              <Link href="/products?category=Studio%20Gear" onClick={() => setMobileOpen(false)} className="py-2">Studio Gear</Link>
               <Link href="/wishlist" onClick={() => setMobileOpen(false)} className="py-2 flex justify-between">Wishlist <span className="bg-[#F3F1EB] px-2 rounded-full">{wishlistCount}</span></Link>
               <Link href="/cart" onClick={() => setMobileOpen(false)} className="py-2 flex justify-between">Cart <span className="bg-[#0F0F12] text-white px-2 rounded-full">{cartCount}</span></Link>
               {isAuthenticated ? (

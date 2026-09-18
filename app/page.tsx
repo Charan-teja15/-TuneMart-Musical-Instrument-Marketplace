@@ -1,7 +1,7 @@
 "use client"
 import Link from "next/link"
 import { useState, useEffect } from "react"
-import { Search, ArrowRight, ShieldCheck, Truck, RefreshCcw, Star, Play, Music, Guitar } from "lucide-react"
+import { Search, ArrowRight, ShieldCheck, Truck, RefreshCcw, Star, Play, Music, Guitar, Globe, Mic, Sliders } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
@@ -33,6 +33,7 @@ export default function HomePage() {
   const featured = products.filter(p => p.isFeatured)
   const newArrivals = products.slice(0, 4)
   const usedGear = products.filter(p => p.condition === "used")
+  const studioGear = products.filter(p => p.category === "Studio Gear")
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
@@ -103,13 +104,13 @@ export default function HomePage() {
               </div>
             </div>
 
-            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2, duration: 0.6 }} className="relative hidden lg:block">
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2, duration: 0.6 }} className="relative block mt-8 lg:mt-0 w-full max-w-lg lg:max-w-none mx-auto">
               <div className="relative rounded-[32px] overflow-hidden bg-[#1F1F23] p-3 shadow-2xl">
-                <img src="https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=800" alt="Guitar" className="rounded-[20px] w-full aspect-[4/3] object-cover" />
+                <img src="https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=800" alt="Guitar" referrerPolicy="no-referrer" className="rounded-[20px] w-full aspect-[4/3] object-cover" />
                 <div className="absolute bottom-6 left-6 right-6 bg-white rounded-2xl p-4 shadow-xl flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="h-12 w-12 rounded-xl bg-[#F3F1EB] overflow-hidden">
-                      <img src="https://i.pravatar.cc/100?img=11" alt="seller" className="h-full w-full object-cover" />
+                      <img src="https://i.pravatar.cc/100?img=11" alt="seller" referrerPolicy="no-referrer" className="h-full w-full object-cover" />
                     </div>
                     <div>
                       <div className="font-semibold text-black text-sm">Fender Strat - Mint</div>
@@ -118,11 +119,11 @@ export default function HomePage() {
                   </div>
                   <div className="text-right">
                     <div className="font-bold text-black">₹1,25,000</div>
-                    <div className="text-xs text-green-600">Verified ✓</div>
+                    <div className="text-xs text-green-600 font-semibold">Verified ✓</div>
                   </div>
                 </div>
               </div>
-              <div className="absolute -top-6 -right-6 bg-white text-black rounded-2xl p-3 shadow-xl rotate-3">
+              <div className="absolute -top-4 -right-4 sm:-top-6 sm:-right-6 bg-white text-black rounded-2xl p-3 shadow-xl rotate-3">
                 <div className="flex items-center gap-2 text-xs font-semibold"><ShieldCheck className="h-4 w-4 text-green-600" /> Buyer Protection</div>
               </div>
             </motion.div>
@@ -153,7 +154,7 @@ export default function HomePage() {
           {categories.slice(0, 10).map(cat => (
             <Link key={cat.id} href={`/products?category=${encodeURIComponent(cat.name)}`} className="group relative rounded-[20px] overflow-hidden bg-[#F8F7F4] border border-[#E7E5E4] p-4 hover:shadow-md hover:border-[#D6D3D1] transition-all">
               <div className="aspect-square rounded-xl overflow-hidden bg-white mb-3">
-                <img src={cat.image} alt={cat.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                <img src={cat.image} alt={cat.name} referrerPolicy="no-referrer" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
               </div>
               <h3 className="font-semibold text-sm leading-tight line-clamp-2">{cat.name}</h3>
               <p className="text-xs text-[#78716C] mt-1">{cat.productCount} products</p>
@@ -218,6 +219,34 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Studio & Recording Gear Showcase */}
+      <section className="bg-[#FAF9F6] border-y border-[#E7E5E4]">
+        <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <div className="h-6 w-6 rounded-full bg-[#0F0F12] flex items-center justify-center">
+                  <Sliders className="h-3 w-3 text-[#FF6B00]" />
+                </div>
+                <span className="text-xs font-bold tracking-widest uppercase text-[#FF6B00]">Pro Audio & Production</span>
+              </div>
+              <h2 className="text-[28px] sm:text-[32px] font-bold tracking-tight">Studio & Recording Gear</h2>
+              <p className="text-sm text-[#78716C] mt-1">
+                Audio interfaces, active reference studio monitors, dynamic vocal mics, and mastering headphones.
+              </p>
+            </div>
+            <Link href="/products?category=Studio%20Gear" className="text-sm font-medium hover:text-[#FF6B00] flex items-center gap-1">
+              View all studio gear <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+            {studioGear.slice(0, 4).map(p => (
+              <ProductCard key={p.id} product={p} />
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* CTA Seller */}
       <section className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8 pb-16 w-full">
         <div className="rounded-[32px] bg-[#0F0F12] text-white p-8 sm:p-12 relative overflow-hidden">
@@ -231,14 +260,14 @@ export default function HomePage() {
                 <Link href="/seller"><Button variant="outline" size="lg" className="bg-white/10 border-white/10 text-white hover:bg-white/15">How it works</Button></Link>
               </div>
             </div>
-            <div className="hidden md:flex justify-end">
-              <div className="grid grid-cols-2 gap-3 rotate-2">
+            <div className="flex justify-center md:justify-end mt-8 md:mt-0">
+              <div className="grid grid-cols-2 gap-3 rotate-1 sm:rotate-2">
                 <div className="space-y-3">
-                  <div className="h-24 w-32 rounded-2xl bg-[#1F1F23] p-2"><img src="https://images.unsplash.com/photo-1558098329-a11cff621064?w=200" className="w-full h-full object-cover rounded-xl" alt="" /></div>
+                  <div className="h-24 w-32 rounded-2xl bg-[#1F1F23] p-2"><img src="https://images.unsplash.com/photo-1558098329-a11cff621064?w=200" referrerPolicy="no-referrer" className="w-full h-full object-cover rounded-xl" alt="" /></div>
                   <div className="h-32 w-32 rounded-2xl bg-[#FF6B00] flex items-center justify-center"><Guitar className="h-8 w-8 text-white" /></div>
                 </div>
                 <div className="space-y-3 mt-6">
-                  <div className="h-32 w-32 rounded-2xl bg-[#1F1F23] p-2"><img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200" className="w-full h-full object-cover rounded-xl" alt="" /></div>
+                  <div className="h-32 w-32 rounded-2xl bg-[#1F1F23] p-2"><img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200" referrerPolicy="no-referrer" className="w-full h-full object-cover rounded-xl" alt="" /></div>
                   <div className="h-24 w-32 rounded-2xl bg-white text-black flex flex-col items-center justify-center"><div className="font-bold">₹12.5L+</div><div className="text-xs text-[#78716C]">Paid to sellers</div></div>
                 </div>
               </div>

@@ -6,8 +6,9 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
+import { User } from "@/lib/types"
 
-function ProfileForm({ user }: { user: any }) {
+function ProfileForm({ user }: { user: User | null }) {
   const [name, setName] = useState(user?.name || "")
   const [location, setLocation] = useState(user?.location || "")
   const [saved, setSaved] = useState(false)

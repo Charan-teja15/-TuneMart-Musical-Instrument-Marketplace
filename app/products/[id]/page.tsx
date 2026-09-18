@@ -8,12 +8,13 @@ import { formatPrice } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Heart, Scale, ShoppingCart, MessageCircle, Share2, Star, MapPin, BadgeCheck, ShieldCheck, Truck, RefreshCcw, Flag, Zap, Play } from "lucide-react"
+import { Heart, Scale, ShoppingCart, MessageCircle, Star, MapPin, BadgeCheck, ShieldCheck, Truck, RefreshCcw, Flag, Zap, Play } from "lucide-react"
 import { useCart } from "@/contexts/CartContext"
 import { useWishlist } from "@/contexts/WishlistContext"
 import { useCompare } from "@/contexts/CompareContext"
 import { ProductCard } from "@/components/product/ProductCard"
 import { useAuth } from "@/contexts/AuthContext"
+import { ShareInstrumentButton, ShareInstrumentButtons } from "@/components/product/ShareInstrumentModal"
 
 export default function ProductDetailsPage() {
   const params = useParams()
@@ -134,7 +135,7 @@ export default function ProductDetailsPage() {
         {/* Gallery */}
         <div className="space-y-4">
           <div className="relative aspect-[4/3] rounded-[24px] overflow-hidden bg-[#F8F7F4] border border-[#E7E5E4]">
-            <img src={product.images[selectedImage]} alt={product.name} className="w-full h-full object-cover" />
+            <img src={product.images[selectedImage]} alt={product.name} referrerPolicy="no-referrer" className="w-full h-full object-cover" />
             <div className="absolute top-4 left-4 flex gap-2">
               <Badge variant={product.condition === "new" ? "success" : "warning"} className="capitalize">{product.condition}</Badge>
               {product.isFeatured && <Badge variant="accent">Featured</Badge>}
@@ -146,7 +147,10 @@ export default function ProductDetailsPage() {
               >
                 <Heart className={`h-5 w-5 ${inWishlist ? "fill-current" : ""}`} />
               </button>
-              <button className="h-10 w-10 rounded-full bg-white shadow-sm flex items-center justify-center"><Share2 className="h-5 w-5" /></button>
+              <ShareInstrumentButton
+                title={product.name}
+                price={formatPrice(product.price)}
+              />
             </div>
             {product.video && (
               <button className="absolute bottom-4 left-4 bg-black/80 backdrop-blur text-white px-3 py-1.5 rounded-full text-xs flex items-center gap-1.5"><Play className="h-3 w-3" /> Watch video</button>
@@ -155,7 +159,7 @@ export default function ProductDetailsPage() {
           <div className="flex gap-3 overflow-x-auto pb-2">
             {product.images.map((img, idx) => (
               <button key={idx} onClick={() => setSelectedImage(idx)} className={`relative h-20 w-20 rounded-xl overflow-hidden border-2 shrink-0 ${selectedImage === idx ? "border-[#0F0F12]" : "border-[#E7E5E4]"}`}>
-                <img src={img} alt="" className="w-full h-full object-cover" />
+                <img src={img} alt="" referrerPolicy="no-referrer" className="w-full h-full object-cover" />
               </button>
             ))}
           </div>
@@ -230,7 +234,7 @@ export default function ProductDetailsPage() {
           {/* Seller */}
           <Card className="rounded-[20px] border-[#E7E5E4]">
             <CardContent className="p-4 flex items-center gap-3">
-              <img src={product.seller.avatar} alt={product.seller.name} className="h-12 w-12 rounded-full object-cover" />
+              <img src={product.seller.avatar} alt={product.seller.name} referrerPolicy="no-referrer" className="h-12 w-12 rounded-full object-cover" />
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5">
                   <span className="font-semibold text-sm truncate">{product.seller.shopName || product.seller.name}</span>
@@ -286,6 +290,12 @@ export default function ProductDetailsPage() {
                 </CardContent>
               </Card>
             )}
+
+            {/* Share Instrument Module */}
+            <ShareInstrumentButtons
+              title={product.name}
+              price={formatPrice(product.price)}
+            />
           </div>
 
           {/* Specs */}

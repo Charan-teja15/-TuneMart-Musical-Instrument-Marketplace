@@ -256,14 +256,20 @@ export async function getCategories(): Promise<Category[]> {
       .order("name")
 
     if (!error && data && data.length > 0) {
-      return (data as Array<{ id: string; name: string; slug: string; description?: string; image_url?: string; products?: [{ count: number }] }>).map(c => ({
-        id: c.id,
-        name: c.name as ProductCategory,
-        slug: c.slug,
-        description: c.description || "",
-        image: c.image_url || "https://images.unsplash.com/photo-1511192336575-5a79af67a629?w=800",
-        productCount: c.products ? (c.products[0]?.count || 0) : 0
-      }))
+      return (data as Array<{ id: string; name: string; slug: string; description?: string; image_url?: string; products?: [{ count: number }] }>).map(c => {
+        let catImage = c.image_url || "https://images.unsplash.com/photo-1511192336575-5a79af67a629?w=800"
+        if (c.slug === "drums-percussion" || c.name.toLowerCase().includes("drum")) {
+          catImage = "https://images.unsplash.com/photo-1543443374-b6fe10a6ab7b?auto=format&fit=crop&w=1200&q=80"
+        }
+        return {
+          id: c.id,
+          name: c.name as ProductCategory,
+          slug: c.slug,
+          description: c.description || "",
+          image: catImage,
+          productCount: c.products ? (c.products[0]?.count || 0) : 0
+        }
+      })
     }
   } catch (err) {
     console.warn("Error fetching categories from Supabase:", err)

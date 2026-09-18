@@ -30,6 +30,7 @@ export function ProductCard({ product }: Props) {
         <img
           src={imgError ? "https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=400" : product.images[0]}
           alt={product.name}
+          referrerPolicy="no-referrer"
           onError={() => setImgError(true)}
           className="h-full w-full object-cover group-hover:scale-[1.03] transition-transform duration-500"
         />
@@ -114,7 +115,7 @@ export function ProductCard({ product }: Props) {
 
         <div className="flex items-center gap-1.5 mb-3">
           <div className="h-6 w-6 rounded-full bg-[#F3F1EB] overflow-hidden">
-            <img src={product.seller.avatar} alt={product.seller.name} className="h-full w-full object-cover" />
+            <img src={product.seller.avatar} alt={product.seller.name} referrerPolicy="no-referrer" className="h-full w-full object-cover" />
           </div>
           <span className="text-xs font-medium truncate">{product.seller.shopName || product.seller.name}</span>
           {product.seller.verified && <BadgeCheck className="h-3.5 w-3.5 text-blue-600 shrink-0" />}

@@ -22,6 +22,7 @@ export const metadata: Metadata = {
   title: "TuneMart - Buy & Sell Musical Instruments in India",
   description: "India's trusted marketplace for new and used musical instruments. Guitars, keyboards, drums, studio gear and more from verified sellers.",
   keywords: ["musical instruments", "guitars", "keyboards", "drums", "India", "marketplace", "used instruments"],
+  referrer: "no-referrer",
 };
 
 export default function RootLayout({

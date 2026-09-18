@@ -24,7 +24,7 @@ export default function CategoriesPage() {
         {categories.map(cat => (
           <Link key={cat.id} href={`/products?category=${encodeURIComponent(cat.name)}`} className="group rounded-[24px] border border-[#E7E5E4] bg-white overflow-hidden hover:shadow-lg transition-all">
             <div className="aspect-[16/10] overflow-hidden bg-[#F8F7F4]">
-              <img src={cat.image} alt={cat.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+              <img src={cat.image} alt={cat.name} referrerPolicy="no-referrer" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
             </div>
             <div className="p-5">
               <h3 className="font-bold text-[18px]">{cat.name}</h3>

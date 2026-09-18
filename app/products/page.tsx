@@ -28,6 +28,14 @@ function ProductsContent() {
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 200000])
   const [loading, setLoading] = useState(false)
 
+  // Keep category in sync if URL query parameter changes
+  useEffect(() => {
+    const catFromUrl = searchParams.get("category") as ProductCategory | null
+    if (catFromUrl) {
+      setCategory(catFromUrl)
+    }
+  }, [searchParams])
+
   useEffect(() => {
     async function loadData() {
       setLoading(true)
@@ -44,7 +52,47 @@ function ProductsContent() {
     loadData()
   }, [])
 
-  const brands = useMemo(() => Array.from(new Set(products.map(p => p.brand))), [products])
+  // Calculate dynamic price boundaries based on selected category or all products
+  const categoryBounds = useMemo(() => {
+    const relevantProducts = category === "all"
+      ? products
+      : products.filter(p => p.category === category)
+
+    if (relevantProducts.length === 0) {
+      return { min: 0, max: 200000, count: 0 }
+    }
+
+    const prices = relevantProducts.map(p => p.price)
+    const min = Math.min(...prices)
+    const rawMax = Math.max(...prices)
+    // Round upper ceiling to nearest clean thousand
+    const max = Math.max(10000, Math.ceil(rawMax / 5000) * 5000)
+    return { min, max, count: relevantProducts.length }
+  }, [products, category])
+
+  // Automatically adapt price range when category changes
+  const handleCategoryChange = (newCategory: ProductCategory | "all") => {
+    setCategory(newCategory)
+    setBrand("all")
+    const relevant = newCategory === "all"
+      ? products
+      : products.filter(p => p.category === newCategory)
+
+    if (relevant.length > 0) {
+      const prices = relevant.map(p => p.price)
+      const min = Math.min(...prices)
+      const rawMax = Math.max(...prices)
+      const max = Math.max(10000, Math.ceil(rawMax / 5000) * 5000)
+      setPriceRange([0, max])
+    } else {
+      setPriceRange([0, 200000])
+    }
+  }
+
+  const brands = useMemo(() => {
+    const pool = category === "all" ? products : products.filter(p => p.category === category)
+    return Array.from(new Set(pool.map(p => p.brand))).filter(Boolean)
+  }, [products, category])
 
   const filtered = useMemo(() => {
     let result = [...products]
@@ -55,7 +103,12 @@ function ProductsContent() {
 
     if (search) {
       const q = search.toLowerCase()
-      result = result.filter(p => p.name.toLowerCase().includes(q) || p.brand.toLowerCase().includes(q) || p.model.toLowerCase().includes(q))
+      result = result.filter(p => 
+        p.name.toLowerCase().includes(q) || 
+        p.brand.toLowerCase().includes(q) || 
+        p.model.toLowerCase().includes(q) ||
+        (p.description && p.description.toLowerCase().includes(q))
+      )
     }
     if (category !== "all") {
       result = result.filter(p => p.category === category)
@@ -68,10 +121,31 @@ function ProductsContent() {
     }
     result = result.filter(p => p.price >= priceRange[0] && p.price <= priceRange[1])
 
-    if (sort === "price-low") result.sort((a, b) => a.price - b.price)
-    if (sort === "price-high") result.sort((a, b) => b.price - a.price)
-    if (sort === "newest") result.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-    if (sort === "rating") result.sort((a, b) => b.rating - a.rating)
+    if (sort === "price-low") {
+      result.sort((a, b) => a.price - b.price)
+    } else if (sort === "price-high") {
+      result.sort((a, b) => b.price - a.price)
+    } else if (sort === "newest") {
+      result.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    } else if (sort === "rating") {
+      result.sort((a, b) => {
+        const diff = (b.rating || 0) - (a.rating || 0)
+        if (diff !== 0) return diff
+        return (b.reviewCount || 0) - (a.reviewCount || 0)
+      })
+    } else if (sort === "relevance") {
+      result.sort((a, b) => {
+        if (search) {
+          const q = search.toLowerCase()
+          const aExact = a.name.toLowerCase().includes(q) ? 2 : 0
+          const bExact = b.name.toLowerCase().includes(q) ? 2 : 0
+          if (bExact !== aExact) return bExact - aExact
+        }
+        if (a.isFeatured && !b.isFeatured) return -1
+        if (!a.isFeatured && b.isFeatured) return 1
+        return (b.rating || 0) - (a.rating || 0)
+      })
+    }
 
     return result
   }, [products, search, category, condition, brand, sort, priceRange, initialFeatured])
@@ -80,8 +154,9 @@ function ProductsContent() {
     setCategory("all")
     setCondition("all")
     setBrand("all")
-    setPriceRange([0, 200000])
+    setPriceRange([0, categoryBounds.max || 200000])
     setSearch("")
+    setSort("relevance")
   }
 
   return (
@@ -97,9 +172,16 @@ function ProductsContent() {
               <div className="space-y-5">
                 <div>
                   <label className="text-xs font-semibold uppercase tracking-widest text-[#78716C] mb-2 block">Category</label>
-                  <Select value={category} onChange={(e) => setCategory(e.target.value as ProductCategory | "all")}>
-                    <option value="all">All Categories</option>
-                    {categories.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
+                  <Select value={category} onChange={(e) => handleCategoryChange(e.target.value as ProductCategory | "all")}>
+                    <option value="all">All Categories ({products.length})</option>
+                    {categories.map(c => {
+                      const count = products.filter(p => p.category === c.name).length
+                      return (
+                        <option key={c.id} value={c.name}>
+                          {c.name} {count > 0 ? `(${count})` : ""}
+                        </option>
+                      )
+                    })}
                   </Select>
                 </div>
                 <div>
@@ -128,12 +210,68 @@ function ProductsContent() {
                   </Select>
                 </div>
                 <div>
-                  <label className="text-xs font-semibold uppercase tracking-widest text-[#78716C] mb-2 block">Price Range: ₹{priceRange[0].toLocaleString()} - ₹{priceRange[1].toLocaleString()}</label>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="text-xs font-semibold uppercase tracking-widest text-[#78716C]">
+                      Price Range
+                    </label>
+                    <span className="text-xs font-bold text-[#0F0F12]">
+                      ₹{priceRange[0].toLocaleString()} - ₹{priceRange[1].toLocaleString()}
+                    </span>
+                  </div>
                   <div className="space-y-3">
-                    <input type="range" min={0} max={200000} step={1000} value={priceRange[1]} onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value)])} className="w-full accent-[#0F0F12]" />
+                    <input 
+                      type="range" 
+                      min={0} 
+                      max={categoryBounds.max} 
+                      step={categoryBounds.max > 50000 ? 1000 : 500} 
+                      value={priceRange[1]} 
+                      onChange={(e) => setPriceRange([priceRange[0], Math.max(priceRange[0], parseInt(e.target.value))])} 
+                      className="w-full accent-[#0F0F12] cursor-pointer" 
+                    />
                     <div className="flex gap-2">
-                      <Input type="number" value={priceRange[0]} onChange={(e) => setPriceRange([parseInt(e.target.value) || 0, priceRange[1]])} className="h-9" />
-                      <Input type="number" value={priceRange[1]} onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value) || 0])} className="h-9" />
+                      <div className="flex-1">
+                        <span className="text-[10px] text-[#78716C] mb-1 block">Min (₹)</span>
+                        <Input 
+                          type="number" 
+                          min={0}
+                          max={priceRange[1]}
+                          value={priceRange[0]} 
+                          onChange={(e) => setPriceRange([Math.max(0, parseInt(e.target.value) || 0), priceRange[1]])} 
+                          className="h-9 text-xs" 
+                        />
+                      </div>
+                      <div className="flex-1">
+                        <span className="text-[10px] text-[#78716C] mb-1 block">Max (₹)</span>
+                        <Input 
+                          type="number" 
+                          min={priceRange[0]}
+                          max={categoryBounds.max}
+                          value={priceRange[1]} 
+                          onChange={(e) => setPriceRange([priceRange[0], Math.min(categoryBounds.max, parseInt(e.target.value) || categoryBounds.max)])} 
+                          className="h-9 text-xs" 
+                        />
+                      </div>
+                    </div>
+                    {/* Quick Price Shortcuts */}
+                    <div className="flex flex-wrap gap-1.5 pt-1">
+                      <button
+                        onClick={() => setPriceRange([0, Math.round(categoryBounds.max * 0.35)])}
+                        className="text-[11px] px-2.5 py-1 rounded-full bg-[#F5F5F4] hover:bg-[#E7E5E4] text-[#57534E] font-medium transition-colors"
+                      >
+                        Under ₹{Math.round(categoryBounds.max * 0.35).toLocaleString()}
+                      </button>
+                      <button
+                        onClick={() => setPriceRange([Math.round(categoryBounds.max * 0.35), Math.round(categoryBounds.max * 0.7)])}
+                        className="text-[11px] px-2.5 py-1 rounded-full bg-[#F5F5F4] hover:bg-[#E7E5E4] text-[#57534E] font-medium transition-colors"
+                      >
+                        Mid Range
+                      </button>
+                      <button
+                        onClick={() => setPriceRange([0, categoryBounds.max])}
+                        className="text-[11px] px-2.5 py-1 rounded-full bg-[#F5F5F4] hover:bg-[#E7E5E4] text-[#57534E] font-medium transition-colors"
+                      >
+                        Reset Range
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -153,29 +291,62 @@ function ProductsContent() {
         <div className="flex-1">
           <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center mb-6">
             <div>
-              <h1 className="text-[24px] font-bold tracking-tight">All Instruments</h1>
-              <p className="text-sm text-[#78716C]">{filtered.length} products • Verified sellers</p>
+              <h1 className="text-[24px] font-bold tracking-tight">
+                {category === "all" ? "All Instruments" : category}
+              </h1>
+              <p className="text-sm text-[#78716C]">
+                {filtered.length} {filtered.length === 1 ? "instrument" : "instruments"} found
+                {category !== "all" ? ` in ${category}` : ""} • Verified sellers
+              </p>
             </div>
-            <div className="flex gap-3 w-full sm:w-auto">
-              <div className="relative flex-1 sm:w-[280px]">
+            <div className="flex flex-wrap sm:flex-nowrap gap-3 w-full sm:w-auto items-center">
+              <div className="relative flex-1 sm:w-[260px]">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#A8A29E]" />
                 <Input placeholder="Search within results..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9 h-10" />
               </div>
-              <Select value={sort} onChange={(e) => setSort(e.target.value)} className="w-[160px] h-10">
-                <option value="relevance">Relevance</option>
-                <option value="price-low">Price: Low to High</option>
-                <option value="price-high">Price: High to Low</option>
-                <option value="newest">Newest</option>
-                <option value="rating">Rating</option>
-              </Select>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-[#78716C] font-medium hidden md:inline">Sort:</span>
+                <Select value={sort} onChange={(e) => setSort(e.target.value)} className="w-[175px] h-10 text-xs font-medium">
+                  <option value="relevance">Relevance</option>
+                  <option value="price-low">Price: Low to High</option>
+                  <option value="price-high">Price: High to Low</option>
+                  <option value="newest">Newest First</option>
+                  <option value="rating">Top Rated</option>
+                </Select>
+              </div>
             </div>
           </div>
 
-          {(category !== "all" || condition !== "all" || brand !== "all") && (
-            <div className="flex flex-wrap gap-2 mb-6">
-              {category !== "all" && <Badge variant="secondary" className="gap-1">{category} <button onClick={() => setCategory("all")}><X className="h-3 w-3" /></button></Badge>}
-              {condition !== "all" && <Badge variant="secondary" className="gap-1 capitalize">{condition} <button onClick={() => setCondition("all")}><X className="h-3 w-3" /></button></Badge>}
-              {brand !== "all" && <Badge variant="secondary" className="gap-1">{brand} <button onClick={() => setBrand("all")}><X className="h-3 w-3" /></button></Badge>}
+          {(category !== "all" || condition !== "all" || brand !== "all" || priceRange[1] < categoryBounds.max || priceRange[0] > 0) && (
+            <div className="flex flex-wrap items-center gap-2 mb-6">
+              <span className="text-xs text-[#78716C] font-medium mr-1">Active filters:</span>
+              {category !== "all" && (
+                <Badge variant="secondary" className="gap-1">
+                  Category: {category} <button onClick={() => handleCategoryChange("all")}><X className="h-3 w-3" /></button>
+                </Badge>
+              )}
+              {condition !== "all" && (
+                <Badge variant="secondary" className="gap-1 capitalize">
+                  Condition: {condition} <button onClick={() => setCondition("all")}><X className="h-3 w-3" /></button>
+                </Badge>
+              )}
+              {brand !== "all" && (
+                <Badge variant="secondary" className="gap-1">
+                  Brand: {brand} <button onClick={() => setBrand("all")}><X className="h-3 w-3" /></button>
+                </Badge>
+              )}
+              {(priceRange[0] > 0 || priceRange[1] < categoryBounds.max) && (
+                <Badge variant="secondary" className="gap-1">
+                  Price: ₹{priceRange[0].toLocaleString()} - ₹{priceRange[1].toLocaleString()}{" "}
+                  <button onClick={() => setPriceRange([0, categoryBounds.max])}><X className="h-3 w-3" /></button>
+                </Badge>
+              )}
+              <button
+                onClick={clearFilters}
+                className="text-xs text-[#FF6B00] hover:underline ml-2 font-medium"
+              >
+                Clear all
+              </button>
             </div>
           )}
 
