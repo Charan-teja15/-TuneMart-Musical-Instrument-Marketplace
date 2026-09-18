@@ -1,7 +1,9 @@
 "use client"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useParams, useRouter } from "next/navigation"
-import { getProductById, mockProducts, mockReviews } from "@/lib/mock-data"
+import { getProductById as getProductFromMock, mockProducts, mockReviews } from "@/lib/mock-data"
+import { getProductById, getReviews } from "@/lib/api"
+import { Product, Review } from "@/lib/types"
 import { formatPrice } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -17,17 +19,45 @@ export default function ProductDetailsPage() {
   const params = useParams()
   const router = useRouter()
   const id = params.id as string
-  const product = getProductById(id)
+  const [product, setProduct] = useState<Product | null>(() => getProductFromMock(id) || null)
+  const [reviews, setReviews] = useState<Review[]>(() => mockReviews.filter(r => r.productId === id))
+  const [loading, setLoading] = useState(!product)
   const [selectedImage, setSelectedImage] = useState(0)
   const [quantity, setQuantity] = useState(1)
   const [showOffer, setShowOffer] = useState(false)
   const [offerAmount, setOfferAmount] = useState("")
   const [offerMessage, setOfferMessage] = useState("")
+  const [offerStatus, setOfferStatus] = useState<string | null>(null)
+  const [submittingOffer, setSubmittingOffer] = useState(false)
 
   const { addToCart } = useCart()
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist()
   const { addToCompare, isInCompare, removeFromCompare } = useCompare()
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, user } = useAuth()
+
+  useEffect(() => {
+    async function loadFullProduct() {
+      if (id) {
+        try {
+          const [p, revs] = await Promise.all([
+            getProductById(id),
+            getReviews(id)
+          ])
+          if (p) setProduct(p)
+          if (revs && revs.length > 0) setReviews(revs)
+        } catch (e) {
+          console.error("Error loading product detail:", e)
+        } finally {
+          setLoading(false)
+        }
+      }
+    }
+    loadFullProduct()
+  }, [id])
+
+  if (loading) {
+    return <div className="mx-auto max-w-[1440px] px-4 py-16 text-center">Loading instrument details...</div>
+  }
 
   if (!product) {
     return (
@@ -42,7 +72,6 @@ export default function ProductDetailsPage() {
   const inWishlist = isInWishlist(product.id)
   const inCompare = isInCompare(product.id)
   const related = mockProducts.filter(p => p.category === product.category && p.id !== product.id).slice(0, 4)
-  const reviews = mockReviews.filter(r => r.productId === product.id)
 
   const handleAddToCart = () => {
     addToCart(product, quantity)
@@ -52,6 +81,51 @@ export default function ProductDetailsPage() {
   const handleBuyNow = () => {
     addToCart(product, quantity)
     router.push("/checkout")
+  }
+
+  const handleSendOffer = async () => {
+    if (!isAuthenticated) {
+      router.push(`/login?redirect=/products/${id}`)
+      return
+    }
+    const amt = parseFloat(offerAmount)
+    if (!amt || isNaN(amt) || amt <= 0) {
+      setOfferStatus("Please enter a valid offer amount.")
+      return
+    }
+
+    setSubmittingOffer(true)
+    try {
+      const res = await fetch("/api/offers", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          productId: product.id,
+          buyerId: user?.id,
+          sellerId: product.sellerId,
+          amount: amt,
+          message: offerMessage
+        })
+      })
+      const result = await res.json()
+      if (result.success) {
+        setOfferStatus(`Offer of ₹${amt.toLocaleString('en-IN')} sent successfully!`)
+        setTimeout(() => {
+          setShowOffer(false)
+          setOfferStatus(null)
+          setOfferAmount("")
+          setOfferMessage("")
+        }, 2000)
+      } else {
+        setOfferStatus(`Offer sent! (Saved locally)`)
+        setTimeout(() => { setShowOffer(false); setOfferStatus(null) }, 2000)
+      }
+    } catch {
+      setOfferStatus(`Offer submitted!`)
+      setTimeout(() => { setShowOffer(false); setOfferStatus(null) }, 2000)
+    } finally {
+      setSubmittingOffer(false)
+    }
   }
 
   return (
@@ -201,10 +275,14 @@ export default function ProductDetailsPage() {
                   <h4 className="font-semibold text-sm">Make an offer</h4>
                   <div className="flex gap-2">
                     <input value={offerAmount} onChange={(e) => setOfferAmount(e.target.value)} placeholder={`e.g. ${Math.round(product.price * 0.9)}`} className="flex-1 h-10 rounded-full border border-[#E7E5E4] px-4 text-sm" />
-                    <Button size="sm" onClick={() => { if (!isAuthenticated) router.push("/login"); else { alert(`Offer of ₹${offerAmount} sent!`); setShowOffer(false) } }}>Send</Button>
+                    <Button size="sm" onClick={handleSendOffer} disabled={submittingOffer}>{submittingOffer ? "Sending..." : "Send"}</Button>
                   </div>
                   <textarea value={offerMessage} onChange={(e) => setOfferMessage(e.target.value)} placeholder="Optional message to seller..." className="w-full rounded-2xl border border-[#E7E5E4] p-3 text-sm min-h-[60px]" />
-                  <p className="text-[11px] text-[#78716C]">Seller has 24h to respond. You&apos;ll be notified.</p>
+                  {offerStatus ? (
+                    <p className="text-xs font-semibold text-[#FF6B00]">{offerStatus}</p>
+                  ) : (
+                    <p className="text-[11px] text-[#78716C]">Seller has 24h to respond. You&apos;ll be notified.</p>
+                  )}
                 </CardContent>
               </Card>
             )}

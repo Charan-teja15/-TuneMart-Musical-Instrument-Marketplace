@@ -1,6 +1,8 @@
 "use client"
 import React, { createContext, useContext, useEffect, useState } from "react"
 import { CartItem, Product } from "@/lib/types"
+import { useAuth } from "@/contexts/AuthContext"
+import { getDbCart, syncCartToDb } from "@/lib/api"
 
 interface CartContextType {
   items: CartItem[]
@@ -19,20 +21,41 @@ const CartContext = createContext<CartContextType | undefined>(undefined)
 const CART_KEY = "tunemart_cart"
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
-  const [items, setItems] = useState<CartItem[]>([])
-
-  useEffect(() => {
-    const stored = localStorage.getItem(CART_KEY)
-    if (stored) {
+  const { user } = useAuth()
+  const [items, setItems] = useState<CartItem[]>(() => {
+    if (typeof window !== "undefined") {
       try {
-        setItems(JSON.parse(stored))
+        const stored = localStorage.getItem(CART_KEY)
+        if (stored) return JSON.parse(stored)
       } catch {}
     }
-  }, [])
+    return []
+  })
 
+  // 1. When user logs in, load database cart and merge
+  useEffect(() => {
+    async function loadCart() {
+      if (user?.id) {
+        try {
+          const dbItems = await getDbCart(user.id)
+          if (dbItems && dbItems.length > 0) {
+            setItems(dbItems)
+          }
+        } catch (e) {
+          console.warn("Could not load cart from database:", e)
+        }
+      }
+    }
+    loadCart()
+  }, [user?.id])
+
+  // 2. Persist to localStorage and Supabase
   useEffect(() => {
     localStorage.setItem(CART_KEY, JSON.stringify(items))
-  }, [items])
+    if (user?.id) {
+      syncCartToDb(user.id, items).catch(err => console.warn("Could not sync cart to DB:", err))
+    }
+  }, [items, user?.id])
 
   const addToCart = (product: Product, quantity = 1) => {
     setItems(prev => {

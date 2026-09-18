@@ -6,6 +6,7 @@ import { formatPrice, formatDate } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Check, Package, Truck, MapPin } from "lucide-react"
+import { getOrderById } from "@/lib/api"
 
 const statusOrder: OrderStatus[] = ["placed", "confirmed", "packed", "shipped", "out_for_delivery", "delivered"]
 
@@ -13,16 +14,22 @@ export default function OrderDetailsPage() {
   const params = useParams()
   const id = params.id as string
   const [order, setOrder] = useState<Order | null>(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const stored = localStorage.getItem("tunemart_orders")
-    if (stored) {
-      try {
-        const orders: Order[] = JSON.parse(stored)
-        setOrder(orders.find(o => o.id === id) || null)
-      } catch {}
+    async function loadOrder() {
+      if (id) {
+        const o = await getOrderById(id)
+        setOrder(o)
+      }
+      setLoading(false)
     }
+    loadOrder()
   }, [id])
+
+  if (loading) {
+    return <div className="mx-auto max-w-[1440px] px-4 py-16 text-center">Loading order details...</div>
+  }
 
   if (!order) {
     return <div className="mx-auto max-w-[1440px] px-4 py-16 text-center"><h1 className="text-xl font-bold">Order not found</h1><p className="text-[#78716C] mt-2">Check your orders list</p></div>

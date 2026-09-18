@@ -1,5 +1,5 @@
 "use client"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
@@ -9,29 +9,38 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select } from "@/components/ui/select"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { mockCategories } from "@/lib/mock-data"
+import { getCategories } from "@/lib/api"
+import { useAuth } from "@/contexts/AuthContext"
 import { Upload, X } from "lucide-react"
 import { useRouter } from "next/navigation"
+import Image from "next/image"
 
 const schema = z.object({
   name: z.string().min(3, "Name must be at least 3 characters"),
   category: z.string().min(1, "Category required"),
   brand: z.string().min(1, "Brand required"),
   model: z.string().min(1, "Model required"),
-  price: z.coerce.number().min(100, "Price too low"),
+  price: z.number().min(100, "Price too low"),
   condition: z.enum(["new", "used", "refurbished"]),
-  quantity: z.coerce.number().min(1),
+  quantity: z.number().min(1),
   location: z.string().min(2),
   description: z.string().min(20, "Description too short"),
 })
 
 type FormData = z.infer<typeof schema>
 
+type ConditionField = "overall" | "body" | "neck" | "strings" | "electronics" | "cosmetic"
+
 export default function NewProductPage() {
   const router = useRouter()
+  const { user } = useAuth()
   const [images, setImages] = useState<string[]>([])
   const [isUsed, setIsUsed] = useState(false)
-  const [conditionReport, setConditionReport] = useState({
+  const [categories, setCategories] = useState<Array<{ id: string; name: string }>>([])
+  const [submitting, setSubmitting] = useState(false)
+  const [errorMsg, setErrorMsg] = useState<string | null>(null)
+
+  const [conditionReport, setConditionReport] = useState<Record<ConditionField, string> & { damageDetails: string }>({
     overall: "good",
     body: "good",
     neck: "good",
@@ -41,17 +50,54 @@ export default function NewProductPage() {
     damageDetails: "",
   })
 
+  useEffect(() => {
+    getCategories().then(cats => setCategories(cats)).catch(() => {})
+  }, [])
+
   const { register, handleSubmit, watch, formState: { errors }, setValue } = useForm<FormData>({
-    resolver: zodResolver(schema) as any,
-    defaultValues: { condition: "new", quantity: 1 } as any
+    resolver: zodResolver(schema),
+    defaultValues: { condition: "new", quantity: 1 }
   })
 
   const condition = watch("condition")
 
-  const onSubmit = (data: any) => {
-    console.log(data, images, conditionReport)
-    alert("Product created successfully! (Mock - would save to Supabase)")
-    router.push("/seller/products")
+  const onSubmit = async (data: FormData) => {
+    setSubmitting(true)
+    setErrorMsg(null)
+    try {
+      const payload = {
+        title: data.name,
+        category: data.category,
+        brand: data.brand,
+        model: data.model,
+        price: data.price,
+        condition: data.condition,
+        quantity: data.quantity,
+        location: data.location,
+        description: data.description,
+        images: images.length > 0 ? images : ["https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=800"],
+        sellerId: user?.id,
+        conditionReport: (isUsed || data.condition === "used") ? conditionReport : undefined
+      }
+
+      const res = await fetch("/api/products", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      })
+
+      const json = await res.json()
+      if (!res.ok) {
+        throw new Error(json.error || "Failed to create product")
+      }
+
+      router.push("/seller/products")
+    } catch (err) {
+      console.error("Create product error:", err)
+      setErrorMsg(err instanceof Error ? err.message : "Error creating product")
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -66,13 +112,18 @@ export default function NewProductPage() {
   return (
     <div className="max-w-3xl">
       <h1 className="text-[22px] font-bold mb-6">Add New Product</h1>
+      {errorMsg && (
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl">
+          {errorMsg}
+        </div>
+      )}
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <Card className="rounded-[20px]">
           <CardHeader><CardTitle className="text-base">Basic Information</CardTitle></CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <Label>Product Name *</Label>
-              <Input {...register("name")} placeholder="Fender Stratocaster..." className="mt-1" />
+              <Label>Product Title *</Label>
+              <Input {...register("name")} placeholder="e.g. Fender American Professional II Stratocaster" className="mt-1" />
               {errors.name && <p className="text-xs text-red-600 mt-1">{errors.name.message}</p>}
             </div>
             <div className="grid sm:grid-cols-2 gap-4">
@@ -80,13 +131,21 @@ export default function NewProductPage() {
                 <Label>Category *</Label>
                 <Select {...register("category")} className="mt-1">
                   <option value="">Select category</option>
-                  {mockCategories.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
+                  {categories.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
                 </Select>
                 {errors.category && <p className="text-xs text-red-600 mt-1">{errors.category.message}</p>}
               </div>
               <div>
                 <Label>Condition *</Label>
-                <Select {...register("condition")} onChange={(e) => { setValue("condition", e.target.value as any); setIsUsed(e.target.value === "used") }} className="mt-1">
+                <Select
+                  {...register("condition")}
+                  onChange={(e) => {
+                    const val = e.target.value as "new" | "used" | "refurbished"
+                    setValue("condition", val)
+                    setIsUsed(val === "used")
+                  }}
+                  className="mt-1"
+                >
                   <option value="new">New</option>
                   <option value="used">Used</option>
                   <option value="refurbished">Refurbished</option>
@@ -104,12 +163,12 @@ export default function NewProductPage() {
               </div>
               <div>
                 <Label>Price (₹) *</Label>
-                <Input type="number" {...register("price")} placeholder="125000" className="mt-1" />
+                <Input type="number" {...register("price", { valueAsNumber: true })} placeholder="125000" className="mt-1" />
                 {errors.price && <p className="text-xs text-red-600 mt-1">{errors.price.message}</p>}
               </div>
               <div>
                 <Label>Quantity *</Label>
-                <Input type="number" {...register("quantity")} className="mt-1" />
+                <Input type="number" {...register("quantity", { valueAsNumber: true })} className="mt-1" />
               </div>
               <div className="sm:col-span-2">
                 <Label>Location *</Label>
@@ -133,7 +192,7 @@ export default function NewProductPage() {
               <div className="grid grid-cols-4 gap-3">
                 {images.map((img, idx) => (
                   <div key={idx} className="relative aspect-square rounded-xl overflow-hidden bg-[#F8F7F4] border border-[#E7E5E4]">
-                    <img src={img} alt="" className="w-full h-full object-cover" />
+                    <Image src={img} alt="" fill unoptimized className="object-cover" />
                     <button type="button" onClick={() => setImages(images.filter((_, i) => i !== idx))} className="absolute top-1 right-1 h-6 w-6 rounded-full bg-black/60 text-white flex items-center justify-center"><X className="h-3 w-3" /></button>
                   </div>
                 ))}
@@ -147,10 +206,14 @@ export default function NewProductPage() {
             <CardHeader><CardTitle className="text-base">Used Instrument Condition Report *</CardTitle></CardHeader>
             <CardContent className="space-y-4">
               <div className="grid sm:grid-cols-2 gap-4">
-                {["overall", "body", "neck", "strings", "electronics", "cosmetic"].map(field => (
+                {(["overall", "body", "neck", "strings", "electronics", "cosmetic"] as const).map(field => (
                   <div key={field}>
                     <Label className="capitalize">{field} Condition</Label>
-                    <Select value={(conditionReport as any)[field]} onChange={(e) => setConditionReport({ ...conditionReport, [field]: e.target.value })} className="mt-1">
+                    <Select
+                      value={conditionReport[field]}
+                      onChange={(e) => setConditionReport({ ...conditionReport, [field]: e.target.value })}
+                      className="mt-1"
+                    >
                       <option value="excellent">Excellent</option>
                       <option value="good">Good</option>
                       <option value="fair">Fair</option>
@@ -185,7 +248,9 @@ export default function NewProductPage() {
         </Card>
 
         <div className="flex gap-3">
-          <Button type="submit" size="lg" className="flex-1 h-12">Publish Product</Button>
+          <Button type="submit" size="lg" className="flex-1 h-12" disabled={submitting}>
+            {submitting ? "Publishing..." : "Publish Product"}
+          </Button>
           <Button type="button" variant="outline" size="lg" className="h-12" onClick={() => router.back()}>Cancel</Button>
         </div>
       </form>

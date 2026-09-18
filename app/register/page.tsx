@@ -24,8 +24,8 @@ export default function RegisterPage() {
     try {
       await register(form.email, form.password, form.name, form.role)
       router.push(form.role === "seller" ? "/seller/dashboard" : form.role === "admin" ? "/admin/dashboard" : "/")
-    } catch (err: any) {
-      setError(err.message || "Registration failed")
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Registration failed")
     } finally {
       setLoading(false)
     }

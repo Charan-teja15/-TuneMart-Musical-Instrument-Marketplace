@@ -1,21 +1,38 @@
 "use client"
 import Link from "next/link"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Search, ArrowRight, ShieldCheck, Truck, RefreshCcw, Star, Play, Music, Guitar } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { ProductCard } from "@/components/product/ProductCard"
+import { getProducts, getCategories } from "@/lib/api"
 import { mockProducts, mockCategories } from "@/lib/mock-data"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 
 export default function HomePage() {
   const [search, setSearch] = useState("")
+  const [products, setProducts] = useState(mockProducts)
+  const [categories, setCategories] = useState(mockCategories)
   const router = useRouter()
-  const featured = mockProducts.filter(p => p.isFeatured)
-  const newArrivals = mockProducts.slice(0, 4)
-  const usedGear = mockProducts.filter(p => p.condition === "used")
+
+  useEffect(() => {
+    async function loadLiveData() {
+      try {
+        const [prods, cats] = await Promise.all([getProducts(), getCategories()])
+        if (prods && prods.length > 0) setProducts(prods)
+        if (cats && cats.length > 0) setCategories(cats)
+      } catch (e) {
+        console.error("Error loading live data:", e)
+      }
+    }
+    loadLiveData()
+  }, [])
+
+  const featured = products.filter(p => p.isFeatured)
+  const newArrivals = products.slice(0, 4)
+  const usedGear = products.filter(p => p.condition === "used")
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
@@ -133,7 +150,7 @@ export default function HomePage() {
           <Link href="/categories" className="hidden sm:flex items-center gap-2 text-sm font-medium hover:text-[#FF6B00]">View all <ArrowRight className="h-4 w-4" /></Link>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4">
-          {mockCategories.slice(0, 10).map(cat => (
+          {categories.slice(0, 10).map(cat => (
             <Link key={cat.id} href={`/products?category=${encodeURIComponent(cat.name)}`} className="group relative rounded-[20px] overflow-hidden bg-[#F8F7F4] border border-[#E7E5E4] p-4 hover:shadow-md hover:border-[#D6D3D1] transition-all">
               <div className="aspect-square rounded-xl overflow-hidden bg-white mb-3">
                 <img src={cat.image} alt={cat.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />

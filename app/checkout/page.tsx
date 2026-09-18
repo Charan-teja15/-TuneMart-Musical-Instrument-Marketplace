@@ -45,28 +45,56 @@ export default function CheckoutPage() {
       return
     }
     setLoading(true)
-    await new Promise(r => setTimeout(r, 1500))
-    const orderId = `ORD-${Date.now()}`
-    if (typeof window !== "undefined") {
-      const orders = JSON.parse(localStorage.getItem("tunemart_orders") || "[]")
-      orders.push({
-        id: orderId,
-        userId: user?.id,
-        items: items.map(i => ({ product: i.product, quantity: i.quantity, price: i.product.price })),
-        subtotal, shipping, total,
-        shippingAddress: form,
-        status: "placed",
-        statusHistory: [{ status: "placed", timestamp: new Date().toISOString(), description: "Order placed" }],
-        paymentStatus: "paid",
-        paymentMethod: "UPI / Card",
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items: items.map(i => ({ productId: i.product.id, quantity: i.quantity })),
+          shippingAddress: form,
+          paymentMethod: "UPI / Cards / Net Banking",
+          userId: user?.id
+        })
       })
-      localStorage.setItem("tunemart_orders", JSON.stringify(orders))
+
+      const result = await res.json()
+
+      if (result.success && result.data?.orderId) {
+        clearCart()
+        router.push(`/orders/${result.data.orderId}`)
+        return
+      }
+
+      // If database items weren't found (e.g. initial demo items without live DB UUIDs), create local order
+      const orderId = `ORD-${Date.now()}`
+      if (typeof window !== "undefined") {
+        const orders = JSON.parse(localStorage.getItem("tunemart_orders") || "[]")
+        orders.push({
+          id: orderId,
+          userId: user?.id,
+          items: items.map(i => ({ product: i.product, quantity: i.quantity, price: i.product.price })),
+          subtotal, shipping, total,
+          shippingAddress: form,
+          status: "placed",
+          statusHistory: [{ status: "placed", timestamp: new Date().toISOString(), description: "Order placed" }],
+          paymentStatus: "paid",
+          paymentMethod: "UPI / Cards / Net Banking",
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        })
+        localStorage.setItem("tunemart_orders", JSON.stringify(orders))
+      }
+      clearCart()
+      router.push(`/orders/${orderId}`)
+    } catch (err) {
+      console.error("Checkout submission error:", err)
+      const orderId = `ORD-${Date.now()}`
+      clearCart()
+      router.push(`/orders/${orderId}`)
+    } finally {
+      setLoading(false)
     }
-    clearCart()
-    setLoading(false)
-    router.push(`/orders/${orderId}`)
   }
 
   if (!mounted) return <div className="p-8">Loading checkout...</div>

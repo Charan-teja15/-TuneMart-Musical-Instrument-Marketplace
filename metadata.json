@@ -1,0 +1,6 @@
+{
+  "name": "TuneMart",
+  "description": "Real-world musical instrument marketplace to buy and sell new, used, and refurbished instruments",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

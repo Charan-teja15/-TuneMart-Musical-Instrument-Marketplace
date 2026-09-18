@@ -6,18 +6,29 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { Package } from "lucide-react"
+import { useAuth } from "@/contexts/AuthContext"
+import { getUserOrders } from "@/lib/api"
 
 export default function OrdersPage() {
+  const { user } = useAuth()
   const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const stored = localStorage.getItem("tunemart_orders")
-    if (stored) {
-      try { setOrders(JSON.parse(stored)) } catch {}
+    async function loadOrders() {
+      if (user?.id) {
+        const dbOrders = await getUserOrders(user.id)
+        setOrders(dbOrders)
+      } else {
+        const stored = localStorage.getItem("tunemart_orders")
+        if (stored) {
+          try { setOrders(JSON.parse(stored)) } catch {}
+        }
+      }
+      setLoading(false)
     }
-    setLoading(false)
-  }, [])
+    loadOrders()
+  }, [user?.id])
 
   if (loading) return <div className="p-8">Loading...</div>
 

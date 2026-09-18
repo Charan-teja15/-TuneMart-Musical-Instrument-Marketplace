@@ -47,7 +47,11 @@ export function ProductCard({ product }: Props) {
           <button
             onClick={(e) => {
               e.preventDefault()
-              inWishlist ? removeFromWishlist(product.id) : addToWishlist(product)
+              if (inWishlist) {
+                removeFromWishlist(product.id)
+              } else {
+                addToWishlist(product)
+              }
             }}
             className={`h-8 w-8 rounded-full bg-white shadow-sm flex items-center justify-center hover:scale-105 transition-all ${inWishlist ? "text-red-500" : "text-[#57534E]"}`}
           >
@@ -56,7 +60,11 @@ export function ProductCard({ product }: Props) {
           <button
             onClick={(e) => {
               e.preventDefault()
-              inCompare ? removeFromCompare(product.id) : addToCompare(product)
+              if (inCompare) {
+                removeFromCompare(product.id)
+              } else {
+                addToCompare(product)
+              }
             }}
             className={`h-8 w-8 rounded-full bg-white shadow-sm flex items-center justify-center hover:scale-105 transition-all ${inCompare ? "bg-[#0F0F12] text-white" : "text-[#57534E]"}`}
           >

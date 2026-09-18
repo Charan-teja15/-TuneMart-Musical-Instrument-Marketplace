@@ -15,14 +15,15 @@ const CompareContext = createContext<CompareContextType | undefined>(undefined)
 const KEY = "tunemart_compare"
 
 export function CompareProvider({ children }: { children: React.ReactNode }) {
-  const [items, setItems] = useState<Product[]>([])
-
-  useEffect(() => {
-    const stored = localStorage.getItem(KEY)
-    if (stored) {
-      try { setItems(JSON.parse(stored)) } catch {}
+  const [items, setItems] = useState<Product[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem(KEY)
+        if (stored) return JSON.parse(stored)
+      } catch {}
     }
-  }, [])
+    return []
+  })
 
   useEffect(() => {
     localStorage.setItem(KEY, JSON.stringify(items))

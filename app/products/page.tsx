@@ -1,7 +1,8 @@
 "use client"
-import { useState, useMemo, Suspense } from "react"
+import { useState, useMemo, useEffect, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import { ProductCard } from "@/components/product/ProductCard"
+import { getProducts, getCategories } from "@/lib/api"
 import { mockProducts, mockCategories } from "@/lib/mock-data"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -9,7 +10,7 @@ import { Badge } from "@/components/ui/badge"
 import { Select } from "@/components/ui/select"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Search, SlidersHorizontal, X } from "lucide-react"
-import { ProductCategory } from "@/lib/types"
+import { ProductCategory, Product, Category } from "@/lib/types"
 
 function ProductsContent() {
   const searchParams = useSearchParams()
@@ -17,18 +18,36 @@ function ProductsContent() {
   const initialCondition = searchParams.get("condition")
   const initialFeatured = searchParams.get("isFeatured")
 
+  const [products, setProducts] = useState<Product[]>(mockProducts)
+  const [categories, setCategories] = useState<Category[]>(mockCategories)
   const [search, setSearch] = useState("")
-  const [category, setCategory] = useState<ProductCategory | "all">((initialCategory as any) || "all")
+  const [category, setCategory] = useState<ProductCategory | "all">(initialCategory || "all")
   const [condition, setCondition] = useState<string>(initialCondition || "all")
   const [brand, setBrand] = useState("all")
   const [sort, setSort] = useState("relevance")
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 200000])
-  const [loading] = useState(false)
+  const [loading, setLoading] = useState(false)
 
-  const brands = useMemo(() => Array.from(new Set(mockProducts.map(p => p.brand))), [])
+  useEffect(() => {
+    async function loadData() {
+      setLoading(true)
+      try {
+        const [dbProds, dbCats] = await Promise.all([getProducts(), getCategories()])
+        if (dbProds && dbProds.length > 0) setProducts(dbProds)
+        if (dbCats && dbCats.length > 0) setCategories(dbCats)
+      } catch (err) {
+        console.error("Error loading products:", err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadData()
+  }, [])
+
+  const brands = useMemo(() => Array.from(new Set(products.map(p => p.brand))), [products])
 
   const filtered = useMemo(() => {
-    let result = [...mockProducts]
+    let result = [...products]
 
     if (initialFeatured === "true") {
       result = result.filter(p => p.isFeatured)
@@ -55,7 +74,7 @@ function ProductsContent() {
     if (sort === "rating") result.sort((a, b) => b.rating - a.rating)
 
     return result
-  }, [search, category, condition, brand, sort, priceRange, initialFeatured])
+  }, [products, search, category, condition, brand, sort, priceRange, initialFeatured])
 
   const clearFilters = () => {
     setCategory("all")
@@ -78,9 +97,9 @@ function ProductsContent() {
               <div className="space-y-5">
                 <div>
                   <label className="text-xs font-semibold uppercase tracking-widest text-[#78716C] mb-2 block">Category</label>
-                  <Select value={category} onChange={(e) => setCategory(e.target.value as any)}>
+                  <Select value={category} onChange={(e) => setCategory(e.target.value as ProductCategory | "all")}>
                     <option value="all">All Categories</option>
-                    {mockCategories.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
+                    {categories.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
                   </Select>
                 </div>
                 <div>
