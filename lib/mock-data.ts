@@ -72,7 +72,7 @@ export const mockCategories: Category[] = [
   { id: "7", name: "Microphones / Audio Equipment", slug: "microphones-audio", description: "Studio condenser mics, dynamic vocal mics, wireless systems", image: "https://images.unsplash.com/photo-1590602847861-f357a9332bbc?auto=format&fit=crop&w=800&q=80", productCount: 98 },
   { id: "8", name: "Amplifiers / Speakers", slug: "amplifiers-speakers", description: "Guitar amps, PA speakers, stage monitoring", image: "https://images.unsplash.com/photo-1545454675-3531b543be5d?auto=format&fit=crop&w=800&q=80", productCount: 76 },
   { id: "9", name: "Studio Gear", slug: "studio-gear", description: "Active monitors, USB/Thunderbolt interfaces, condenser mics", image: "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&w=800&q=80", productCount: 64 },
-  { id: "10", name: "Accessories", slug: "accessories", description: "Strings, picks, cables, stands", image: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=800&q=80", productCount: 210 },
+  { id: "10", name: "Accessories", slug: "accessories", description: "Stands, tuners, capos, straps, gig bags, pedals, metronomes", image: "/images/accessories.svg", productCount: 210 },
 ]
 
 export const mockProducts: Product[] = [
@@ -402,13 +402,40 @@ export const mockProducts: Product[] = [
       "Quantity": "3 Sets",
       "Type": "Electric Guitar"
     },
-    images: ["https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800"],
+    images: ["/images/accessories.svg", "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800"],
     rating: 4.9,
     reviewCount: 245,
     sellerId: "seller-1",
     seller: mockSellers[0],
     createdAt: "2024-10-01",
     updatedAt: "2024-10-01",
+    isApproved: true,
+  },
+  {
+    id: "prod-15",
+    name: "Pro Stage Gear Accessories Bundle",
+    slug: "pro-stage-gear-accessories-bundle",
+    category: "Accessories",
+    brand: "TuneMart Pro",
+    model: "ACC-PRO-KIT",
+    price: 3499,
+    originalPrice: 4999,
+    condition: "new",
+    quantity: 50,
+    location: "Mumbai, MH",
+    description: "Complete stage & studio setup bundle including foldable sheet music stand, heavy-duty microphone stand, clip-on tuner, capo, woven straps, and padded gig bag.",
+    specifications: {
+      "Included": "Music Stand, Mic Stand, Tuner, Capo, Strap, Picks",
+      "Stand Material": "Powder-coated Steel",
+      "Compatibility": "Guitars, Keyboards, Vocals, Strings"
+    },
+    images: ["/images/accessories.svg"],
+    rating: 4.9,
+    reviewCount: 128,
+    sellerId: "seller-2",
+    seller: mockSellers[1],
+    createdAt: "2024-10-10",
+    updatedAt: "2024-10-10",
     isApproved: true,
   },
   {

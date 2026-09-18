@@ -1,0 +1,195 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#F8F7F4"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-opacity="0.08"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="600" fill="url(#bgGrad)"/>
+  
+  <!-- Subtle Grid Lines -->
+  <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+    <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#E7E5E4" stroke-width="0.5" stroke-dasharray="2 2"/>
+  </pattern>
+  <rect width="800" height="600" fill="url(#grid)"/>
+
+  <!-- Row 1: Stands & Lighting (Y: 40 - 180) -->
+  <g id="row1" filter="url(#shadow)">
+    <!-- Mic Stand 1 -->
+    <g transform="translate(60, 40)">
+      <line x1="20" y1="130" x2="20" y2="40" stroke="#1C1917" stroke-width="3.5"/>
+      <line x1="20" y1="40" x2="50" y2="15" stroke="#1C1917" stroke-width="3"/>
+      <path d="M 0 135 L 20 130 L 40 135" fill="none" stroke="#1C1917" stroke-width="3" stroke-linecap="round"/>
+      <circle cx="50" cy="15" r="4" fill="#FF6B00"/>
+      <text x="20" y="148" font-family="sans-serif" font-size="9" fill="#78716C" text-anchor="middle">Mic Stand</text>
+    </g>
+
+    <!-- Music Stand -->
+    <g transform="translate(180, 35)">
+      <rect x="10" y="10" width="50" height="35" fill="#292524" rx="3"/>
+      <!-- holes pattern -->
+      <circle cx="22" cy="20" r="2" fill="#F8F7F4"/>
+      <circle cx="35" cy="20" r="2" fill="#F8F7F4"/>
+      <circle cx="48" cy="20" r="2" fill="#F8F7F4"/>
+      <circle cx="22" cy="32" r="2" fill="#F8F7F4"/>
+      <circle cx="35" cy="32" r="2" fill="#F8F7F4"/>
+      <circle cx="48" cy="32" r="2" fill="#F8F7F4"/>
+      <line x1="35" y1="45" x2="35" y2="135" stroke="#1C1917" stroke-width="3.5"/>
+      <path d="M 15 140 L 35 135 L 55 140" fill="none" stroke="#1C1917" stroke-width="3" stroke-linecap="round"/>
+      <text x="35" y="153" font-family="sans-serif" font-size="9" fill="#78716C" text-anchor="middle">Music Stand</text>
+    </g>
+
+    <!-- Tripod / Ring Light Stand -->
+    <g transform="translate(320, 30)">
+      <circle cx="35" cy="22" r="16" fill="none" stroke="#D6D3D1" stroke-width="6"/>
+      <circle cx="35" cy="22" r="16" fill="none" stroke="#1C1917" stroke-width="1.5"/>
+      <line x1="35" y1="38" x2="35" y2="140" stroke="#1C1917" stroke-width="3.5"/>
+      <path d="M 12 145 L 35 140 L 58 145" fill="none" stroke="#1C1917" stroke-width="3"/>
+      <text x="35" y="158" font-family="sans-serif" font-size="9" fill="#78716C" text-anchor="middle">Ring Light &amp; Mount</text>
+    </g>
+
+    <!-- Heavy Duty Speaker/Amp Stand -->
+    <g transform="translate(450, 35)">
+      <line x1="35" y1="20" x2="35" y2="135" stroke="#1C1917" stroke-width="4"/>
+      <path d="M 10 140 L 35 135 L 60 140" fill="none" stroke="#1C1917" stroke-width="3.5"/>
+      <rect x="25" y="15" width="20" height="8" rx="2" fill="#44403C"/>
+      <text x="35" y="153" font-family="sans-serif" font-size="9" fill="#78716C" text-anchor="middle">Tripod Stand</text>
+    </g>
+
+    <!-- Desktop Stand -->
+    <g transform="translate(580, 45)">
+      <rect x="15" y="20" width="40" height="25" rx="2" fill="#1C1917"/>
+      <line x1="35" y1="45" x2="35" y2="125" stroke="#1C1917" stroke-width="3"/>
+      <ellipse cx="35" cy="125" rx="25" ry="8" fill="none" stroke="#1C1917" stroke-width="3"/>
+      <text x="35" y="143" font-family="sans-serif" font-size="9" fill="#78716C" text-anchor="middle">Desk Mount</text>
+    </g>
+  </g>
+
+  <!-- Row 2: Guitar & Small Accessories (Y: 200 - 370) -->
+  <g id="row2" filter="url(#shadow)">
+    <!-- A-Frame Guitar Stand -->
+    <g transform="translate(50, 210)">
+      <path d="M 10 110 L 30 20 L 50 110" fill="none" stroke="#1C1917" stroke-width="4" stroke-linejoin="round"/>
+      <line x1="18" y1="75" x2="42" y2="75" stroke="#1C1917" stroke-width="3"/>
+      <path d="M 15 95 C 25 105 35 105 45 95" fill="none" stroke="#FF6B00" stroke-width="4" stroke-linecap="round"/>
+      <text x="30" y="125" font-family="sans-serif" font-size="9" fill="#78716C" text-anchor="middle">A-Frame Stand</text>
+    </g>
+
+    <!-- Wall Hanger -->
+    <g transform="translate(160, 220)">
+      <rect x="20" y="10" width="20" height="30" rx="4" fill="#292524"/>
+      <path d="M 15 40 Q 30 60 45 40" fill="none" stroke="#1C1917" stroke-width="5" stroke-linecap="round"/>
+      <circle cx="15" cy="40" r="4" fill="#FF6B00"/>
+      <circle cx="45" cy="40" r="4" fill="#FF6B00"/>
+      <text x="30" y="75" font-family="sans-serif" font-size="9" fill="#78716C" text-anchor="middle">Wall Hanger</text>
+    </g>
+
+    <!-- Colorful Straps -->
+    <g transform="translate(260, 210)">
+      <path d="M 10 20 Q 30 90 50 20" fill="none" stroke="#EA580C" stroke-width="12" stroke-linecap="round"/>
+      <path d="M 10 20 Q 30 90 50 20" fill="none" stroke="#FBBF24" stroke-width="4" stroke-linecap="round" stroke-dasharray="6 4"/>
+      <rect x="5" y="10" width="10" height="15" rx="2" fill="#292524"/>
+      <rect x="45" y="10" width="10" height="15" rx="2" fill="#292524"/>
+      <text x="30" y="90" font-family="sans-serif" font-size="9" fill="#78716C" text-anchor="middle">Woven Straps</text>
+    </g>
+
+    <!-- Capo & Tuner -->
+    <g transform="translate(370, 215)">
+      <!-- Capo -->
+      <path d="M 10 20 C 10 5 35 5 35 20 C 35 30 20 35 15 50" fill="none" stroke="#292524" stroke-width="4" stroke-linecap="round"/>
+      <rect x="8" y="18" width="28" height="5" rx="2" fill="#FF6B00"/>
+      <!-- Clip-on Tuner -->
+      <g transform="translate(45, 10)">
+        <rect x="0" y="0" width="24" height="28" rx="4" fill="#1C1917"/>
+        <rect x="3" y="3" width="18" height="14" rx="2" fill="#10B981"/>
+        <text x="12" y="13" font-family="sans-serif" font-size="8" fill="#FFFFFF" font-weight="bold" text-anchor="middle">440</text>
+        <path d="M 12 28 L 8 40 L 16 40 Z" fill="#292524"/>
+      </g>
+      <text x="40" y="70" font-family="sans-serif" font-size="9" fill="#78716C" text-anchor="middle">Capo &amp; Tuner</text>
+    </g>
+
+    <!-- Metronome -->
+    <g transform="translate(490, 210)">
+      <polygon points="25,10 5,70 45,70" fill="#1C1917"/>
+      <polygon points="25,15 10,65 40,65" fill="#44403C"/>
+      <line x1="25" y1="60" x2="12" y2="25" stroke="#FF6B00" stroke-width="2.5"/>
+      <circle cx="12" cy="25" r="3" fill="#D97706"/>
+      <text x="25" y="85" font-family="sans-serif" font-size="9" fill="#78716C" text-anchor="middle">Metronome</text>
+    </g>
+
+    <!-- Picks Assortment -->
+    <g transform="translate(600, 220)">
+      <path d="M 15 10 C 25 10 30 20 20 35 C 15 40 10 35 5 20 C 0 10 5 10 15 10 Z" fill="#EF4444"/>
+      <path d="M 35 15 C 45 15 50 25 40 40 C 35 45 30 40 25 25 C 20 15 25 15 35 15 Z" fill="#3B82F6"/>
+      <path d="M 25 35 C 35 35 40 45 30 60 C 25 65 20 60 15 45 C 10 35 15 35 25 35 Z" fill="#F59E0B"/>
+      <text x="25" y="75" font-family="sans-serif" font-size="9" fill="#78716C" text-anchor="middle">Variety Picks</text>
+    </g>
+  </g>
+
+  <!-- Row 3: Bags, Pedals, Drum Pads & Benches (Y: 390 - 560) -->
+  <g id="row3" filter="url(#shadow)">
+    <!-- Gig Bag -->
+    <g transform="translate(50, 390)">
+      <path d="M 20 10 C 30 10 35 30 35 60 L 40 100 C 42 120 35 130 20 130 C 5 130 -2 120 0 100 L 5 60 C 5 30 10 10 20 10 Z" fill="#1C1917"/>
+      <rect x="8" y="70" width="24" height="35" rx="4" fill="#292524"/>
+      <line x1="20" y1="20" x2="20" y2="120" stroke="#FF6B00" stroke-width="1.5" stroke-dasharray="4 2"/>
+      <text x="20" y="148" font-family="sans-serif" font-size="9" fill="#78716C" text-anchor="middle">Padded Gig Bag</text>
+    </g>
+
+    <!-- Hard Case -->
+    <g transform="translate(160, 400)">
+      <path d="M 10 20 C 20 20 25 35 25 60 L 30 90 C 32 110 25 120 15 120 C 5 120 0 110 0 90 L 5 60 C 5 35 0 20 10 20 Z" fill="#44403C" stroke="#1C1917" stroke-width="2"/>
+      <rect x="-2" y="55" width="28" height="4" fill="#D97706"/>
+      <rect x="2" y="85" width="22" height="4" fill="#D97706"/>
+      <text x="12" y="138" font-family="sans-serif" font-size="9" fill="#78716C" text-anchor="middle">Hardshell Case</text>
+    </g>
+
+    <!-- Drum Practice Pad -->
+    <g transform="translate(280, 410)">
+      <polygon points="30,5 55,20 55,50 30,65 5,50 5,20" fill="#0284C7" stroke="#1C1917" stroke-width="2"/>
+      <polygon points="30,12 47,23 47,47 30,58 13,47 13,23" fill="#38BDF8"/>
+      <!-- Drumsticks -->
+      <line x1="0" y1="65" x2="45" y2="10" stroke="#D97706" stroke-width="3" stroke-linecap="round"/>
+      <line x1="60" y1="65" x2="15" y2="10" stroke="#D97706" stroke-width="3" stroke-linecap="round"/>
+      <text x="30" y="82" font-family="sans-serif" font-size="9" fill="#78716C" text-anchor="middle">Practice Pad</text>
+    </g>
+
+    <!-- Sustain Pedal -->
+    <g transform="translate(410, 415)">
+      <rect x="10" y="20" width="45" height="30" rx="4" fill="#1C1917"/>
+      <path d="M 20 35 L 50 35" stroke="#E5E7EB" stroke-width="8" stroke-linecap="round"/>
+      <path d="M 50 35 L 55 35" stroke="#D1D5DB" stroke-width="6"/>
+      <text x="32" y="68" font-family="sans-serif" font-size="9" fill="#78716C" text-anchor="middle">Sustain Pedal</text>
+    </g>
+
+    <!-- Folding Keyboard Bench -->
+    <g transform="translate(530, 400)">
+      <rect x="5" y="15" width="60" height="15" rx="3" fill="#1C1917"/>
+      <line x1="12" y1="30" x2="48" y2="70" stroke="#292524" stroke-width="3.5"/>
+      <line x1="48" y1="30" x2="12" y2="70" stroke="#292524" stroke-width="3.5"/>
+      <line x1="8" y1="70" x2="52" y2="70" stroke="#1C1917" stroke-width="3"/>
+      <text x="35" y="88" font-family="sans-serif" font-size="9" fill="#78716C" text-anchor="middle">Padded Bench</text>
+    </g>
+
+    <!-- Studio Headphones -->
+    <g transform="translate(660, 400)">
+      <path d="M 10 35 C 10 10 50 10 50 35" fill="none" stroke="#1C1917" stroke-width="4"/>
+      <rect x="5" y="30" width="12" height="22" rx="4" fill="#292524"/>
+      <rect x="43" y="30" width="12" height="22" rx="4" fill="#292524"/>
+      <rect x="3" y="34" width="6" height="14" rx="2" fill="#FF6B00"/>
+      <rect x="51" y="34" width="6" height="14" rx="2" fill="#FF6B00"/>
+      <text x="30" y="68" font-family="sans-serif" font-size="9" fill="#78716C" text-anchor="middle">Headphones</text>
+    </g>
+  </g>
+
+  <!-- Banner Header Bar -->
+  <g transform="translate(200, 560)">
+    <rect x="0" y="0" width="400" height="28" rx="14" fill="#1C1917"/>
+    <text x="200" y="18" font-family="sans-serif" font-size="12" font-weight="bold" fill="#FFFFFF" text-anchor="middle">COMPLETE MUSICAL ACCESSORIES &amp; STAGE GEAR</text>
+  </g>
+</svg>
