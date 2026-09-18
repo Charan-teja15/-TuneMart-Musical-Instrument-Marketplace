@@ -1,0 +1,1 @@
+export default function HelpPage(){ return <div className="mx-auto max-w-3xl px-4 py-12"><h1 className="text-2xl font-bold">Help Center</h1><p className="text-[#78716C] mt-2">FAQ, shipping, returns, buyer protection info would go here.</p></div> }

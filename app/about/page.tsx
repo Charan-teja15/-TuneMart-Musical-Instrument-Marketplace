@@ -1,0 +1,1 @@
+export default function AboutPage(){ return <div className="mx-auto max-w-3xl px-4 py-12"><h1 className="text-2xl font-bold">About TuneMart</h1><p className="text-[#78716C] mt-2">India&apos;s trusted marketplace for musical instruments.</p></div> }
