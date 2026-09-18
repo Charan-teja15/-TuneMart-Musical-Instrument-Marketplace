@@ -1,7 +1,7 @@
 "use client"
 import Link from "next/link"
 import { useState, useEffect } from "react"
-import { Search, ArrowRight, ShieldCheck, Truck, RefreshCcw, Star, Play, Music, Guitar, Globe, Mic, Sliders } from "lucide-react"
+import { Search, ArrowRight, ShieldCheck, Truck, RefreshCcw, Star, Music, Guitar, Sliders } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"

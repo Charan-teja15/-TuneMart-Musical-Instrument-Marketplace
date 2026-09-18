@@ -21,20 +21,13 @@ function ProductsContent() {
   const [products, setProducts] = useState<Product[]>(mockProducts)
   const [categories, setCategories] = useState<Category[]>(mockCategories)
   const [search, setSearch] = useState("")
-  const [category, setCategory] = useState<ProductCategory | "all">(initialCategory || "all")
+  const [selectedCategory, setSelectedCategory] = useState<ProductCategory | "all" | null>(null)
+  const category = selectedCategory !== null ? selectedCategory : (initialCategory || "all")
   const [condition, setCondition] = useState<string>(initialCondition || "all")
   const [brand, setBrand] = useState("all")
   const [sort, setSort] = useState("relevance")
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 200000])
   const [loading, setLoading] = useState(false)
-
-  // Keep category in sync if URL query parameter changes
-  useEffect(() => {
-    const catFromUrl = searchParams.get("category") as ProductCategory | null
-    if (catFromUrl) {
-      setCategory(catFromUrl)
-    }
-  }, [searchParams])
 
   useEffect(() => {
     async function loadData() {
@@ -72,7 +65,7 @@ function ProductsContent() {
 
   // Automatically adapt price range when category changes
   const handleCategoryChange = (newCategory: ProductCategory | "all") => {
-    setCategory(newCategory)
+    setSelectedCategory(newCategory)
     setBrand("all")
     const relevant = newCategory === "all"
       ? products
@@ -80,7 +73,6 @@ function ProductsContent() {
 
     if (relevant.length > 0) {
       const prices = relevant.map(p => p.price)
-      const min = Math.min(...prices)
       const rawMax = Math.max(...prices)
       const max = Math.max(10000, Math.ceil(rawMax / 5000) * 5000)
       setPriceRange([0, max])
@@ -151,7 +143,7 @@ function ProductsContent() {
   }, [products, search, category, condition, brand, sort, priceRange, initialFeatured])
 
   const clearFilters = () => {
-    setCategory("all")
+    setSelectedCategory("all")
     setCondition("all")
     setBrand("all")
     setPriceRange([0, categoryBounds.max || 200000])

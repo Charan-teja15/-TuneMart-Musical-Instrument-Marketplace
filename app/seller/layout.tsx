@@ -3,7 +3,7 @@ import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { useAuth } from "@/contexts/AuthContext"
 import { useEffect } from "react"
-import { LayoutDashboard, Package, Plus, ShoppingCart, MessageCircle, BarChart3, Settings, Store, Tag, Users } from "lucide-react"
+import { LayoutDashboard, Package, Plus, ShoppingCart, MessageCircle, BarChart3, Settings, Store, Tag } from "lucide-react"
 
 const nav = [
   { href: "/seller/dashboard", label: "Dashboard", icon: LayoutDashboard },

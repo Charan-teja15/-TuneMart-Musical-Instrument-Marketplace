@@ -1,4 +1,4 @@
-import { Category, Product, Seller, User, ProductCategory, Review, Order, Offer, Conversation } from "./types"
+import { Category, Product, Seller, User, ProductCategory, Review } from "./types"
 
 export const mockSellers: Seller[] = [
   {

@@ -5,7 +5,7 @@ import { Order, OrderStatus } from "@/lib/types"
 import { formatPrice, formatDate } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Check, Package, Truck, MapPin } from "lucide-react"
+import { Check, Package, MapPin } from "lucide-react"
 import { getOrderById } from "@/lib/api"
 
 const statusOrder: OrderStatus[] = ["placed", "confirmed", "packed", "shipped", "out_for_delivery", "delivered"]
